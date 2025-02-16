@@ -1,0 +1,15 @@
+name: my_stack_name
+
+services:
+  webadmin:
+    image: web-admin
+    container_name: web-admin
+    build:
+      context: .
+      dockerfile: WebAdmin/Dockerfile
+  webmain:
+    image: web-main
+    container_name: web-main
+    build:
+      context: .
+      dockerfile: WebMain/Dockerfile
