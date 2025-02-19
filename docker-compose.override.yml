@@ -11,7 +11,8 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
     networks:
-        - web-admin-local
+      - web-admin-local
+
   webmain:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -24,8 +25,69 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
     networks:
-        - web-admin-local
+      - web-admin-local
 
+  clickhouse:
+    ports:
+      - "8123:8123"  # HTTP-интерфейс ClickHouse
+      - "9000:9000"  # Native-интерфейс ClickHouse
+    environment:
+      CLICKHOUSE_DB: logs
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: ""
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    networks:
+      - web-admin-local
+
+  rabbitmq:
+    image: rabbitmq:3.12.14-management-alpine
+    container_name: rabbitmq-web-admin
+    ports:
+      - "5672:5672"  # Порт для AMQP
+      - "15672:15672"  # Порт для управления RabbitMQ (Web UI)
+    configs:
+      - source: rabbitmqplugins
+        target: /etc/rabbitmq/enabled_plugins
+    restart: unless-stopped
+    environment:
+       - RABBITMQ_DEFAULT_USER=admin
+       - RABBITMQ_DEFAULT_PASS=admin
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq_plugins:/etc/rabbitmq
+    networks:
+      - web-admin-local
+  
+  prometheus:
+    ports:
+      - "9090:9090"  # Порт для доступа к Prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml  # Конфигурация Prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    networks:
+      - web-admin-local
+
+  grafana:
+    ports:
+      - "3000:3000"  # Порт для доступа к Grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - web-admin-local
 networks:
   web-admin-local: 
     name: web-admin-local
+    driver: bridge
+volumes:
+  clickhouse-data:
+  rabbitmq_data:
+  rabbitmq_plugins:
+  grafana-storage:
+configs:
+  rabbitmqplugins:
+    content: "[rabbitmq_management, rabbitmq_prometheus, rabbitmq_stream, rabbitmq_stream_management]."

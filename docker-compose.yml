@@ -1,15 +1,27 @@
-name: my_stack_name
+name: test_monitoring
 
 services:
   webadmin:
     image: web-admin
-    container_name: web-admin
+    container_name: web-admin-test_monitoring
     build:
       context: .
       dockerfile: WebAdmin/Dockerfile
   webmain:
     image: web-main
-    container_name: web-main
+    container_name: web-main-test_monitoring
     build:
       context: .
       dockerfile: WebMain/Dockerfile
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.8.4.69-alpine
+    container_name: clickhouse-test_monitoring
+  rabbitmq:
+    image: rabbitmq:3.12.14-management-alpine
+    container_name: rabbitmq-test_monitoring
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus-test_monitoring
+  grafana:
+    image: grafana/grafana
+    container_name: grafana-test_monitoring
