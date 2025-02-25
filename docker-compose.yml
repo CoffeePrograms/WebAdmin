@@ -1,27 +1,41 @@
-name: test_monitoring
+name: monitoring
 
 services:
-  webadmin:
-    image: web-admin
-    container_name: web-admin-test_monitoring
-    build:
-      context: .
-      dockerfile: WebAdmin/Dockerfile
+
   webmain:
     image: web-main
-    container_name: web-main-test_monitoring
+    container_name: web-main-monitoring
     build:
       context: .
       dockerfile: WebMain/Dockerfile
+    depends_on:
+      - rabbitmq
+
+  webadmin:
+    image: web-admin
+    container_name: web-admin-monitoring
+    build:
+      context: .
+      dockerfile: WebAdmin/Dockerfile
+    depends_on:
+      - clickhouse
+      - rabbitmq
+      - prometheus
+      - grafana
+      - webmain
+
   clickhouse:
     image: clickhouse/clickhouse-server:23.8.4.69-alpine
-    container_name: clickhouse-test_monitoring
+    container_name: clickhouse-monitoring
+
   rabbitmq:
     image: rabbitmq:3.12.14-management-alpine
-    container_name: rabbitmq-test_monitoring
+    container_name: rabbitmq-monitoring
+
   prometheus:
     image: prom/prometheus
-    container_name: prometheus-test_monitoring
+    container_name: prometheus-monitoring
+
   grafana:
     image: grafana/grafana
-    container_name: grafana-test_monitoring
+    container_name: grafana-monitoring

@@ -1,23 +1,14 @@
 services:
-  webadmin:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8084
-      - ASPNETCORE_HTTPS_PORTS=8085
-    ports:
-      - "8084:8084"
-      - "8085:8085"
-    volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
-    networks:
-      - web-admin-local
 
   webmain:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
+      - RABBITMQ_HOST=rabbitmq-monitoring
+      - RABBITMQ_USER = admin
+      - RABBITMQ_PASSWORD = admin
+      - RABBITMQ_PORT = 5672
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -27,12 +18,36 @@ services:
     networks:
       - web-admin-local
 
+  webadmin:
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+      ASPNETCORE_HTTP_PORTS: 8084
+      ASPNETCORE_HTTPS_PORTS: 8085
+
+      ClickHouse:Host: "clickhouse-monitoring"
+      ClickHouse:Port: 8123
+      ClickHouse:Database: "default"
+      ClickHouse:User: "default"
+      ClickHouse:Password: ""
+
+      RabbitMQ:Host: "rabbitmq-monitoring"
+      RabbitMQ:Port: 5672
+      RabbitMQ:User: "admin"
+      RabbitMQ:Password: "admin"
+    ports:
+      - "8084:8084"
+      - "8085:8085"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+    networks:
+      - web-admin-local
   clickhouse:
     ports:
       - "8123:8123"  # HTTP-интерфейс ClickHouse
       - "9000:9000"  # Native-интерфейс ClickHouse
     environment:
-      CLICKHOUSE_DB: logs
+      CLICKHOUSE_DB: default
       CLICKHOUSE_USER: default
       CLICKHOUSE_PASSWORD: ""
     volumes:
@@ -42,7 +57,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.12.14-management-alpine
-    container_name: rabbitmq-web-admin
+    container_name: rabbitmq-monitoring
     ports:
       - "5672:5672"  # Порт для AMQP
       - "15672:15672"  # Порт для управления RabbitMQ (Web UI)
