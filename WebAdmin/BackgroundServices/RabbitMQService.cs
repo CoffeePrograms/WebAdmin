@@ -4,8 +4,9 @@ using RabbitMQ.Client.Events;
 using System.Text;
 using WebAdmin.Configuration;
 using WebAdmin.Converters;
+using WebAdmin.Services;
 
-namespace WebAdmin.Services
+namespace WebAdmin.BackgroundServices
 {
     public class RabbitMQService : BackgroundService
     {

@@ -1,4 +1,5 @@
-﻿using WebAdmin.Configuration;
+﻿using WebAdmin.BackgroundServices;
+using WebAdmin.Configuration;
 using WebAdmin.Services;
 
 namespace WebAdmin.Extensions
@@ -13,6 +14,7 @@ namespace WebAdmin.Extensions
             services.AddSingleton<ClickHouseService>();
 
             services.AddHostedService<RabbitMQService>();
+            services.AddHostedService<ClickHouseCleanupService>();
         }
     }
 }
