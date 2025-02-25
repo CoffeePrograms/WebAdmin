@@ -14,43 +14,31 @@ namespace WebAdmin.Services
             _repository = repository;
         }
 
-        public override async Task<LogResponse> InsertLog(LogRequest request, ServerCallContext context)
-        {
-            var logEntity = GrpcConverter.ToLogEntity(request);
-
-            var insertedLog = await _repository.InsertLogAsync(logEntity);
-
-            return new LogResponse
-            {
-                RequestId = insertedLog?.RequestId ?? string.Empty
-            };
-        }
-
-        public override async Task<GetLogsResponse> GetLogs(GetLogsRequest request, ServerCallContext context)
+        public override async Task<GetLogsResponse> GetLogsAsync(GetLogsRequest request, ServerCallContext context)
         {
             var logs = await _repository.GetLogsAsync(
-                timestamp: request.Timestamp.ToDateTime(),
-                level: request.Level,
-                messageTemplate: request.MessageTemplate,
-                method: request.Method,
-                path: request.Path,
-                requestBody: request.RequestBody,
-                statusCode: request.StatusCode,
-                responseBody: request.ResponseBody,
-                controller: request.Controller,
-                application: request.Application,
-                sourceContext: request.SourceContext,
-                requestId: request.RequestId,
-                requestPath: request.RequestPath,
-                connectionId: request.ConnectionId,
-                user: request.User,
-                exception: request.Exception
+                timestamp: request.Filter.Timestamp.ToDateTime(),
+                level: request.Filter.Level,
+                messageTemplate: request.Filter.MessageTemplate,
+                method: request.Filter.Method,
+                path: request.Filter.Path,
+                requestBody: request.Filter.RequestBody,
+                statusCode: request.Filter.StatusCode,
+                responseBody: request.Filter.ResponseBody,
+                controller: request.Filter.Controller,
+                application: request.Filter.Application,
+                sourceContext: request.Filter.SourceContext,
+                requestId: request.Filter.RequestId,
+                requestPath: request.Filter.RequestPath,
+                connectionId: request.Filter.ConnectionId,
+                user: request.Filter.User,
+                exception: request.Filter.Exception
             );
 
             var response = new GetLogsResponse();
             response.Logs.AddRange(logs.Select(log => new LogResponse
             {
-                RequestId = log.RequestId
+                Data = GrpcConverter.ToGrpcMessage(log)
             }));
 
             return response;

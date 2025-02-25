@@ -7,11 +7,10 @@ import "google/protobuf/timestamp.proto";
 package logs;
 
 service LogService {
-  rpc InsertLog (LogRequest) returns (LogResponse);
-  rpc GetLogs (GetLogsRequest) returns (GetLogsResponse);
+  rpc GetLogsAsync (GetLogsRequest) returns (GetLogsResponse);
 }
 
-message LogRequest {
+message LogData {
   google.protobuf.Timestamp timestamp = 1;
   string level = 2;
   string message_template = 3;
@@ -31,26 +30,11 @@ message LogRequest {
 }
 
 message LogResponse {
-  string request_id = 1;
+  LogData data = 1;
 }
 
 message GetLogsRequest {
-  google.protobuf.Timestamp timestamp = 1;
-  string level = 2;
-  string message_template = 3;
-  string method = 4;
-  string path = 5;
-  string request_body = 6;
-  int32 status_code = 7;
-  string response_body = 8;
-  string controller = 9;
-  string application = 10;
-  string source_context = 11;
-  string request_id = 12;
-  string request_path = 13;
-  string connection_id = 14;
-  string user = 15;
-  string exception = 16;
+  LogData filter = 1;
 }
 
 message GetLogsResponse {

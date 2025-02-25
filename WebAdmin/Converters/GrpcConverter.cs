@@ -1,18 +1,14 @@
 ﻿using Google.Protobuf.WellKnownTypes;
-using Grpc.Core;
-using Microsoft.AspNetCore.Mvc;
-using Serilog.Events;
 using WebAdmin.Entities;
 using WebAdmin.Grpc;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace WebAdmin.Converters
 {
     public static class GrpcConverter
     {
-        public static LogRequest ToGrpcMessage(LogEntity log)
+        public static LogData ToGrpcMessage(LogEntity log)
         {
-            return new LogRequest
+            return new LogData
             {
                 Timestamp = Timestamp.FromDateTime(log.Timestamp.ToUniversalTime()),
                 Level = log.Level,
@@ -33,7 +29,7 @@ namespace WebAdmin.Converters
             };
         }
 
-        public static LogEntity ToLogEntity(LogRequest log)
+        public static LogEntity ToLogEntity(LogData log)
         {
             return new LogEntity
             {
